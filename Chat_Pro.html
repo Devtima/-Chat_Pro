@@ -1,0 +1,1081 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat_PRO</title>
+    <style>
+        /*  ТЁМНАЯ ТЕМА */
+        * {
+            box-sizing: border-box;
+            font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            background: #121212;
+            display: flex;
+            justify-content: center;
+            min-height: 100vh;
+        }
+        #app {
+            max-width: 900px;
+            width: 100%;
+            background: #1e1e1e;
+            box-shadow: 0 0 20px rgba(0,0,0,0.5);
+            margin: 20px;
+            border-radius: 16px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            color: #e0e0e0;
+        }
+        header {
+            background: #333333;
+            color: #ffffff;
+            padding: 16px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+        }
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .user-controls {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+        .user-selector {
+            background: #555555;
+            padding: 6px 12px;
+            border-radius: 30px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: white;
+        }
+        .user-selector select {
+            background: transparent;
+            color: white;
+            border: none;
+            font-size: 1rem;
+            outline: none;
+        }
+        .user-selector option {
+            background: #555555;
+            color: white;
+        }
+        .auth-buttons {
+            display: flex;
+            gap: 8px;
+        }
+        .auth-btn {
+            background: #555555;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+        .tabs {
+            display: flex;
+            background: #2a2a2a;
+            border-bottom: 1px solid #444;
+        }
+        .tab {
+            flex: 1;
+            text-align: center;
+            padding: 12px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: 0.2s;
+            color: #ccc;
+        }
+        .tab:hover {
+            background: #3a3a3a;
+        }
+        .tab.active {
+            background: #1e1e1e;
+            border-bottom: 3px solid #777;
+            color: white;
+        }
+        .content {
+            padding: 20px;
+            min-height: 500px;
+            max-height: 600px;
+            overflow-y: auto;
+            background: #1e1e1e;
+        }
+        .post, .friend-item, .dialog-item, .comment-item {
+            background: #2a2a2a;
+            border: 1px solid #444;
+            border-radius: 12px;
+            padding: 12px 16px;
+            margin-bottom: 12px;
+        }
+        .post-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+        .avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+            background: #555;
+        }
+        .avatar-small {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            object-fit: cover;
+            background: #555;
+        }
+        .post-image, .post-video {
+            max-width: 100%;
+            max-height: 300px;
+            border-radius: 8px;
+            margin-top: 8px;
+        }
+        .post-actions {
+            display: flex;
+            gap: 16px;
+            margin-top: 8px;
+            flex-wrap: wrap;
+        }
+        .btn {
+            background: #555555;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: 0.2s;
+        }
+        .btn-outline {
+            background: transparent;
+            border: 1px solid #777;
+            color: #ddd;
+        }
+        .btn-sm {
+            padding: 4px 12px;
+            font-size: 0.8rem;
+        }
+        .btn-danger {
+            background: #b52b2b;
+        }
+        .btn-success {
+            background: #2b7a2b;
+        }
+        .input-group {
+            display: flex;
+            gap: 8px;
+            margin-top: 12px;
+            flex-wrap: wrap;
+        }
+        input, textarea, select {
+            padding: 10px;
+            border: 1px solid #555;
+            border-radius: 20px;
+            outline: none;
+            background: #333;
+            color: #eee;
+        }
+        .friend-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .dialog-item {
+            cursor: pointer;
+        }
+        .dialog-item:hover {
+            background: #3a3a3a;
+        }
+        .unread-badge {
+            background: #b52b2b;
+            color: white;
+            border-radius: 50%;
+            padding: 2px 8px;
+            font-size: 0.8rem;
+            margin-left: 8px;
+        }
+        .message-row {
+            margin-bottom: 8px;
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+        }
+        .message-row.outgoing {
+            justify-content: flex-end;
+        }
+        .message-bubble {
+            max-width: 70%;
+            padding: 8px 12px;
+            border-radius: 18px;
+            background: #3a3a3a;
+        }
+        .message-row.outgoing .message-bubble {
+            background: #555555;
+            color: white;
+        }
+        .timestamp {
+            font-size: 0.7rem;
+            color: #aaa;
+            margin-top: 4px;
+            text-align: right;
+        }
+        .profile-info {
+            background: #2a2a2a;
+            border-radius: 16px;
+            padding: 20px;
+        }
+        .empty-message {
+            color: #aaa;
+            font-style: italic;
+            margin: 20px 0;
+        }
+        .comments-section {
+            margin-top: 12px;
+            border-top: 1px solid #444;
+            padding-top: 12px;
+        }
+        .comment-item {
+            background: #333;
+            margin-left: 20px;
+        }
+        .comment-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 4px;
+        }
+        .search-box {
+            margin: 10px 0;
+            width: 100%;
+        }
+        /* Стили для форм регистрации/входа */
+        .auth-form {
+            max-width: 400px;
+            margin: 0 auto;
+            background: #2a2a2a;
+            padding: 20px;
+            border-radius: 16px;
+        }
+        .auth-form h2 {
+            margin-bottom: 20px;
+        }
+        .auth-form input {
+            width: 100%;
+            margin-bottom: 10px;
+        }
+        .auth-form .checkbox {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+<div id="app">
+    <header>
+        <div class="logo">
+            <span>//</span>
+        </div>
+        <div class="user-controls">
+            <div class="auth-buttons">
+                <button class="auth-btn" onclick="showRegisterForm()">Регистрация</button>
+                <button class="auth-btn" onclick="showLoginForm()">Вход</button>
+            </div>
+            <div class="user-selector" id="userSelectorContainer" style="display: none;">
+                <span>Вы:</span>
+                <select id="userSelect" onchange="switchUser(this.value)"></select>
+            </div>
+        </div>
+    </header>
+
+    <div class="tabs" id="tabsContainer" style="display: none;">
+        <div class="tab active" data-tab="feed" onclick="showTab('feed')">Лента</div>
+        <div class="tab" data-tab="friends" onclick="showTab('friends')">Друзья</div>
+        <div class="tab" data-tab="messages" onclick="showTab('messages')">Сообщения</div>
+        <div class="tab" data-tab="profile" onclick="showTab('profile')">Профиль</div>
+    </div>
+
+    <div id="content" class="content">
+        <div class="empty-message" id="welcomeMessage">
+            <h2>Добро пожаловать!</h2>
+            <p>Зарегистрируйтесь или войдите, чтобы продолжить.
+	НЕ ОТВЕЧАЙТЕ НЕ ЗНАКОМЫМ ВАМ ЛЮДЯМ ПОЖАЛУЙСТА :)</p>
+        </div>
+    </div>
+</div>
+
+<script>
+    // ======================== ДАННЫЕ ========================
+    let users = {};              // username -> объект пользователя
+    let posts = {};              // id поста -> пост
+    let comments = {};           // id комментария -> комментарий
+    let messages = [];           // личные сообщения
+
+    // Счётчики ID (загружаются из localStorage или инициализируются)
+    let nextPostId = 1000;
+    let nextCommentId = 2000;
+    let nextMessageId = 5000;
+
+    let currentUser = null;
+    let friendSearchQuery = '';   // поиск по друзьям
+
+    // Для имитации подтверждения по телефону
+    let pendingRegistration = null; // объект { username, phone, password, code }
+
+    // ================== СОХРАНЕНИЕ В LOCALSTORAGE ==================
+    function saveToStorage() {
+        localStorage.setItem('users', JSON.stringify(users));
+        localStorage.setItem('posts', JSON.stringify(posts));
+        localStorage.setItem('comments', JSON.stringify(comments));
+        localStorage.setItem('messages', JSON.stringify(messages));
+        localStorage.setItem('nextPostId', nextPostId.toString());
+        localStorage.setItem('nextCommentId', nextCommentId.toString());
+        localStorage.setItem('nextMessageId', nextMessageId.toString());
+    }
+
+    function loadFromStorage() {
+        const savedUsers = localStorage.getItem('users');
+        const savedPosts = localStorage.getItem('posts');
+        const savedComments = localStorage.getItem('comments');
+        const savedMessages = localStorage.getItem('messages');
+        const savedNextPostId = localStorage.getItem('nextPostId');
+        const savedNextCommentId = localStorage.getItem('nextCommentId');
+        const savedNextMessageId = localStorage.getItem('nextMessageId');
+
+        if (savedUsers) users = JSON.parse(savedUsers);
+        if (savedPosts) posts = JSON.parse(savedPosts);
+        if (savedComments) comments = JSON.parse(savedComments);
+        if (savedMessages) messages = JSON.parse(savedMessages);
+        if (savedNextPostId) nextPostId = parseInt(savedNextPostId);
+        if (savedNextCommentId) nextCommentId = parseInt(savedNextCommentId);
+        if (savedNextMessageId) nextMessageId = parseInt(savedNextMessageId);
+    }
+
+    // Загружаем данные при старте
+    loadFromStorage();
+
+    // ================== ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ==================
+    function createUser(username, phone, password) {
+        if (users[username]) return null;
+        users[username] = {
+            username: username,
+            phone: phone || '',
+            password: password,  // в реальном приложении храните хеш!
+            avatar: null,
+            friends: [],
+            posts: []
+        };
+        saveToStorage();
+        return users[username];
+    }
+
+    function createPost(author, content, mediaBase64 = null, mediaType = null) {
+        const id = nextPostId++;
+        posts[id] = {
+            id: id,
+            author: author,
+            content: content,
+            media: mediaBase64,
+            mediaType: mediaType,
+            timestamp: new Date().toISOString(),
+            likes: [],
+            comments: [],
+        };
+        users[author].posts.push(id);
+        saveToStorage();
+        return id;
+    }
+
+    function createComment(postId, author, text) {
+        const id = nextCommentId++;
+        comments[id] = {
+            id: id,
+            postId: postId,
+            author: author,
+            text: text,
+            timestamp: new Date().toISOString()
+        };
+        posts[postId].comments.push(id);
+        saveToStorage();
+        return id;
+    }
+
+    function addMessage(from, to, text) {
+        const msg = {
+            id: nextMessageId++,
+            from: from,
+            to: to,
+            text: text,
+            timestamp: new Date().toISOString(),
+            read: false
+        };
+        messages.push(msg);
+        saveToStorage();
+        return msg;
+    }
+
+    function getMessagesBetween(user1, user2) {
+        return messages.filter(m =>
+            (m.from === user1 && m.to === user2) || (m.from === user2 && m.to === user1)
+        ).sort((a,b) => new Date(a.timestamp) - new Date(b.timestamp));
+    }
+
+    function getFriendsOf(user) {
+        if (!user || !users[user]) return [];
+        return users[user].friends.map(f => users[f]).filter(Boolean);
+    }
+
+    function getAllOtherUsers() {
+        if (!currentUser) return [];
+        return Object.keys(users).filter(u => u !== currentUser).map(u => users[u]);
+    }
+
+    function markMessagesAsRead(fromUser, toUser) {
+        messages.forEach(m => {
+            if (m.from === fromUser && m.to === toUser && !m.read) {
+                m.read = true;
+            }
+        });
+        saveToStorage();
+    }
+
+    function getUnreadCount() {
+        if (!currentUser) return 0;
+        return messages.filter(m => m.to === currentUser && !m.read).length;
+    }
+
+    // ================== АУТЕНТИФИКАЦИЯ ==================
+    window.showRegisterForm = function() {
+        document.getElementById('tabsContainer').style.display = 'none';
+        document.getElementById('userSelectorContainer').style.display = 'none';
+        const content = document.getElementById('content');
+        content.innerHTML = `
+            <div class="auth-form" id="registerForm">
+                <h2>Регистрация</h2>
+                <div id="registerStep1">
+                    <input type="text" id="regUsername" placeholder="Имя пользователя">
+                    <input type="text" id="regPhone" placeholder="Телефон">
+                    <input type="password" id="regPassword" placeholder="Пароль">
+                    <button class="btn" onclick="sendConfirmationCode()">Отправить код</button>
+                </div>
+                <div id="registerStep2" style="display: none;">
+                    <p>Введите код, отправленный на ваш телефон (в консоли)</p>
+                    <input type="text" id="regCode" placeholder="Код подтверждения">
+                    <div class="checkbox">
+                        <input type="checkbox" id="regConfirm">
+                        <label for="regConfirm">Подтверждаю</label>
+                    </div>
+                    <button class="btn" onclick="completeRegistration()">Завершить регистрацию</button>
+                </div>
+                <p style="margin-top:10px;">Уже есть аккаунт? <button class="btn-outline btn-sm" onclick="showLoginForm()">Войти</button></p>
+            </div>
+        `;
+    };
+
+    window.sendConfirmationCode = function() {
+        const username = document.getElementById('regUsername').value.trim();
+        const phone = document.getElementById('regPhone').value.trim();
+        const password = document.getElementById('regPassword').value.trim();
+        if (!username || !phone || !password) {
+            alert('Все поля обязательны');
+            return;
+        }
+        if (users[username]) {
+            alert('Пользователь с таким именем уже существует');
+            return;
+        }
+        // Генерируем 4-значный код
+        const code = Math.floor(1000 + Math.random() * 9000).toString();
+        alert(`[Имитация SMS] Ваш код подтверждения: ${code}`);
+        console.log(`Код подтверждения для ${username}: ${code}`);
+        // Сохраняем временные данные
+        pendingRegistration = { username, phone, password, code };
+        // Показываем второй шаг
+        document.getElementById('registerStep1').style.display = 'none';
+        document.getElementById('registerStep2').style.display = 'block';
+    };
+
+    window.completeRegistration = function() {
+        if (!pendingRegistration) {
+            alert('Ошибка: начните регистрацию заново');
+            return;
+        }
+        const enteredCode = document.getElementById('regCode').value.trim();
+        const confirmed = document.getElementById('regConfirm').checked;
+        if (!confirmed) {
+            alert('Необходимо подтвердить согласие');
+            return;
+        }
+        if (enteredCode !== pendingRegistration.code) {
+            alert('Неверный код подтверждения');
+            return;
+        }
+        // Всё хорошо, создаём пользователя
+        createUser(pendingRegistration.username, pendingRegistration.phone, pendingRegistration.password);
+        currentUser = pendingRegistration.username;
+        pendingRegistration = null;
+        afterLogin();
+        alert('✅ Успешная регистрация! ');
+    };
+
+    window.showLoginForm = function() {
+        document.getElementById('tabsContainer').style.display = 'none';
+        document.getElementById('userSelectorContainer').style.display = 'none';
+        const content = document.getElementById('content');
+        content.innerHTML = `
+            <div class="auth-form">
+                <h2>Вход</h2>
+                <input type="text" id="loginUsername" placeholder="Имя пользователя">
+                <input type="password" id="loginPassword" placeholder="Пароль">
+                <button class="btn" onclick="login()">Войти</button>
+                <p style="margin-top:10px;">Нет аккаунта? <button class="btn-outline btn-sm" onclick="showRegisterForm()">Регистрация</button></p>
+            </div>
+        `;
+    };
+
+    window.login = function() {
+        const username = document.getElementById('loginUsername').value.trim();
+        const password = document.getElementById('loginPassword').value.trim();
+        const user = users[username];
+        if (!user || user.password !== password) {
+            alert('Неверное имя или пароль');
+            return;
+        }
+        currentUser = username;
+        afterLogin();
+    };
+
+    function afterLogin() {
+        document.getElementById('tabsContainer').style.display = 'flex';
+        document.getElementById('userSelectorContainer').style.display = 'flex';
+        document.getElementById('welcomeMessage').style.display = 'none';
+        populateUserSelect();
+        showTab('feed');
+    }
+
+    window.switchUser = function(username) {
+        currentUser = username;
+        friendSearchQuery = '';
+        populateUserSelect();
+        showTab('feed');
+    };
+
+    function populateUserSelect() {
+        const select = document.getElementById('userSelect');
+        select.innerHTML = '';
+        Object.keys(users).forEach(u => {
+            const option = document.createElement('option');
+            option.value = u;
+            option.textContent = u;
+            if (u === currentUser) option.selected = true;
+            select.appendChild(option);
+        });
+    }
+
+    // ================== УДАЛЕНИЕ АККАУНТА ==================
+    window.deleteAccount = function() {
+        if (!confirm('Вы уверены, что хотите удалить аккаунт? Это действие необратимо.')) return;
+        const userToDelete = currentUser;
+        // Удаляем все посты пользователя
+        users[userToDelete].posts.forEach(postId => {
+            delete posts[postId];
+        });
+        // Удаляем комментарии пользователя
+        Object.keys(comments).forEach(commentId => {
+            if (comments[commentId].author === userToDelete) {
+                delete comments[commentId];
+            }
+        });
+        // Удаляем сообщения с участием пользователя
+        messages = messages.filter(m => m.from !== userToDelete && m.to !== userToDelete);
+        // Удаляем пользователя из друзей у всех
+        Object.keys(users).forEach(u => {
+            if (u !== userToDelete) {
+                users[u].friends = users[u].friends.filter(f => f !== userToDelete);
+            }
+        });
+        // Удаляем самого пользователя
+        delete users[userToDelete];
+        saveToStorage();
+
+        // Если удалили текущего пользователя, выходим
+        if (userToDelete === currentUser) {
+            currentUser = null;
+            document.getElementById('tabsContainer').style.display = 'none';
+            document.getElementById('userSelectorContainer').style.display = 'none';
+            document.getElementById('welcomeMessage').style.display = 'block';
+            showLoginForm();
+        }
+    };
+
+    // ================== РЕДАКТИРОВАНИЕ ПРОФИЛЯ ==================
+    window.editProfile = function() {
+        const user = users[currentUser];
+        const newName = prompt('Введите новое имя (username):', user.username);
+        if (newName && newName.trim() && newName !== currentUser) {
+            if (users[newName.trim()]) {
+                alert('Это имя уже занято');
+                return;
+            }
+            const oldName = currentUser;
+            const updatedUser = users[oldName];
+            updatedUser.username = newName.trim();
+            delete users[oldName];
+            users[newName.trim()] = updatedUser;
+
+            // Обновляем ссылки
+            for (let u in users) {
+                if (u === newName.trim()) continue;
+                users[u].friends = users[u].friends.map(f => f === oldName ? newName.trim() : f);
+            }
+            Object.values(posts).forEach(p => {
+                if (p.author === oldName) p.author = newName.trim();
+            });
+            Object.values(comments).forEach(c => {
+                if (c.author === oldName) c.author = newName.trim();
+            });
+            messages.forEach(m => {
+                if (m.from === oldName) m.from = newName.trim();
+                if (m.to === oldName) m.to = newName.trim();
+            });
+
+            currentUser = newName.trim();
+            populateUserSelect();
+            saveToStorage();
+        }
+
+        const newPhone = prompt('Введите новый номер телефона:', user.phone || '');
+        if (newPhone !== null) {
+            users[currentUser].phone = newPhone.trim();
+            saveToStorage();
+        }
+
+        // Загрузка аватара
+        const avatarInput = document.createElement('input');
+        avatarInput.type = 'file';
+        avatarInput.accept = 'image/*';
+        avatarInput.onchange = (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    users[currentUser].avatar = event.target.result;
+                    saveToStorage();
+                    showTab('profile');
+                };
+                reader.readAsDataURL(file);
+            }
+        };
+        avatarInput.click();
+    };
+
+    // ================== UI ==================
+    function showTab(tabName) {
+        if (!currentUser) return;
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.classList.toggle('active', tab.dataset.tab === tabName);
+        });
+
+        const contentDiv = document.getElementById('content');
+        if (tabName === 'feed') renderFeed(contentDiv);
+        else if (tabName === 'friends') renderFriends(contentDiv);
+        else if (tabName === 'messages') renderMessagesList(contentDiv);
+        else if (tabName === 'profile') renderProfile(contentDiv);
+    }
+
+    function renderPost(post) {
+        const author = users[post.author];
+        const avatarHtml = author?.avatar ? `<img src="${author.avatar}" class="avatar">` : '<div class="avatar"></div>';
+        let mediaHtml = '';
+        if (post.media && post.mediaType === 'image') {
+            mediaHtml = `<img src="${post.media}" class="post-image">`;
+        } else if (post.media && post.mediaType === 'video') {
+            mediaHtml = `<video src="${post.media}" class="post-video" controls></video>`;
+        }
+
+        let commentsHtml = '';
+        post.comments.forEach(commentId => {
+            const c = comments[commentId];
+            if (c) {
+                const commentAuthor = users[c.author];
+                const commentAvatar = commentAuthor?.avatar ? `<img src="${commentAuthor.avatar}" class="avatar-small">` : '<div class="avatar-small"></div>';
+                commentsHtml += `
+                    <div class="comment-item">
+                        <div class="comment-header">
+                            ${commentAvatar}
+                            <strong>${c.author}</strong>
+                            <span class="timestamp">${new Date(c.timestamp).toLocaleString()}</span>
+                        </div>
+                        <div>${c.text}</div>
+                    </div>
+                `;
+            }
+        });
+
+        return `
+            <div class="post" id="post-${post.id}">
+                <div class="post-header">
+                    ${avatarHtml}
+                    <span><strong>${post.author}</strong></span>
+                    <span class="timestamp">${new Date(post.timestamp).toLocaleString()}</span>
+                </div>
+                <div>${post.content}</div>
+                ${mediaHtml}
+                <div class="post-actions">
+                    <span>❤️ ${post.likes.length}</span>
+                    <button class="btn btn-sm btn-outline" onclick="likePost(${post.id})">Лайк</button>
+                    <button class="btn btn-sm btn-outline" onclick="showCommentForm(${post.id})">💬 Комментировать</button>
+                    <button class="btn btn-sm btn-outline" onclick="repost(${post.id})">🔄 Репост</button>
+                </div>
+                <div id="comment-form-${post.id}" style="display: none; margin-top: 10px;">
+                    <div class="input-group">
+                        <input type="text" id="comment-input-${post.id}" placeholder="Ваш комментарий...">
+                        <button class="btn btn-sm" onclick="addComment(${post.id})">Отправить</button>
+                    </div>
+                </div>
+                <div class="comments-section">
+                    ${commentsHtml}
+                </div>
+            </div>
+        `;
+    }
+
+    // ЛЕНТА
+    function renderFeed(container) {
+        const friends = getFriendsOf(currentUser);
+        let feedPosts = [];
+        friends.forEach(f => {
+            f.posts.forEach(postId => {
+                feedPosts.push(posts[postId]);
+            });
+        });
+        feedPosts.sort((a,b) => new Date(b.timestamp) - new Date(a.timestamp));
+
+        let html = '<h2>Лента</h2>';
+        if (feedPosts.length === 0) {
+            html += '<p>Нет постов от друзей.</p>';
+        } else {
+            feedPosts.forEach(post => {
+                html += renderPost(post);
+            });
+        }
+        html += `
+            <div style="margin-top: 20px;">
+                <h3>Создать новый пост</h3>
+                <textarea id="newPostContent" placeholder="Текст поста (можно смайлики)" rows="2"></textarea>
+                <div class="input-group">
+                    <input type="file" id="postMedia" accept="image/*,video/*">
+                    <button class="btn" onclick="createNewPost()">Опубликовать</button>
+                </div>
+            </div>
+        `;
+        container.innerHTML = html;
+    }
+
+    window.likePost = function(postId) {
+        const post = posts[postId];
+        if (!post) return;
+        if (!post.likes.includes(currentUser)) {
+            post.likes.push(currentUser);
+            saveToStorage();
+        } else {
+            alert('Вы уже лайкали этот пост');
+        }
+        showTab('feed');
+    };
+
+    window.showCommentForm = function(postId) {
+        const form = document.getElementById(`comment-form-${postId}`);
+        if (form) form.style.display = 'block';
+    };
+
+    window.addComment = function(postId) {
+        const input = document.getElementById(`comment-input-${postId}`);
+        const text = input.value.trim();
+        if (!text) return;
+        createComment(postId, currentUser, text);
+        input.value = '';
+        showTab('feed');
+    };
+
+    window.repost = function(originalPostId) {
+        const original = posts[originalPostId];
+        if (!original) return;
+        const content = `Репост от @${original.author}: ${original.content}`;
+        createPost(currentUser, content, null, null);
+        showTab('feed');
+    };
+
+    window.createNewPost = function() {
+        const content = document.getElementById('newPostContent').value.trim();
+        if (!content) {
+            alert('Пост не может быть пустым');
+            return;
+        }
+        const fileInput = document.getElementById('postMedia');
+        if (fileInput.files.length > 0) {
+            const file = fileInput.files[0];
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const mediaType = file.type.startsWith('image/') ? 'image' : 'video';
+                createPost(currentUser, content, e.target.result, mediaType);
+                showTab('feed');
+            };
+            reader.readAsDataURL(file);
+        } else {
+            createPost(currentUser, content, null, null);
+            showTab('feed');
+        }
+    };
+
+    // ДРУЗЬЯ (с поиском и кнопкой "Написать")
+    function renderFriends(container) {
+        const allUsers = getAllOtherUsers();
+        const friends = getFriendsOf(currentUser);
+        const friendNames = friends.map(f => f.username);
+
+        const filteredAllUsers = allUsers.filter(u => 
+            u.username.toLowerCase().includes(friendSearchQuery.toLowerCase())
+        );
+
+        let html = '<h2>Мои друзья</h2>';
+        if (friends.length === 0) {
+            html += '<p>У вас пока нет друзей.</p>';
+        } else {
+            friends.forEach(f => {
+                const avatar = f.avatar ? `<img src="${f.avatar}" class="avatar-small" style="margin-right: 8px;">` : '<div class="avatar-small" style="margin-right: 8px;"></div>';
+                html += `
+                    <div class="friend-item">
+                        <div style="display: flex; align-items: center;">
+                            ${avatar}
+                            <span><strong>${f.username}</strong> (${f.phone || 'телефон не указан'})</span>
+                        </div>
+                        <div>
+                            <button class="btn btn-sm btn-primary" onclick="openChat('${f.username}')">💬 Написать</button>
+                            <button class="btn btn-sm btn-danger" onclick="removeFriend('${f.username}')">Удалить</button>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        html += '<h2 style="margin-top:30px;">Все пользователи</h2>';
+        html += `
+            <div class="search-box">
+                <input type="text" id="friendSearchInput" placeholder="Поиск по имени..." value="${friendSearchQuery}" onkeyup="updateFriendSearch(this.value)">
+            </div>
+        `;
+
+        if (filteredAllUsers.length === 0) {
+            html += '<p>Нет пользователей, соответствующих запросу.</p>';
+        } else {
+            filteredAllUsers.forEach(u => {
+                if (!friendNames.includes(u.username)) {
+                    const avatar = u.avatar ? `<img src="${u.avatar}" class="avatar-small" style="margin-right: 8px;">` : '<div class="avatar-small" style="margin-right: 8px;"></div>';
+                    html += `
+                        <div class="friend-item">
+                            <div style="display: flex; align-items: center;">
+                                ${avatar}
+                                <span><strong>${u.username}</strong> (${u.phone || 'телефон не указан'})</span>
+                            </div>
+                            <div>
+                                <button class="btn btn-sm btn-primary" onclick="openChat('${u.username}')">💬 Написать</button>
+                                <button class="btn btn-sm btn-success" onclick="addFriend('${u.username}')">Добавить в друзья</button>
+                            </div>
+                        </div>
+                    `;
+                }
+            });
+        }
+        container.innerHTML = html;
+    }
+
+    window.updateFriendSearch = function(query) {
+        friendSearchQuery = query;
+        showTab('friends');
+    };
+
+    window.addFriend = function(username) {
+        if (!users[currentUser].friends.includes(username)) {
+            users[currentUser].friends.push(username);
+            users[username].friends.push(currentUser);
+            saveToStorage();
+        }
+        showTab('friends');
+    };
+
+    window.removeFriend = function(username) {
+        users[currentUser].friends = users[currentUser].friends.filter(f => f !== username);
+        users[username].friends = users[username].friends.filter(f => f !== currentUser);
+        saveToStorage();
+        showTab('friends');
+    };
+
+    // СООБЩЕНИЯ
+    function renderMessagesList(container) {
+        const interlocutors = new Set();
+        messages.forEach(m => {
+            if (m.from === currentUser) interlocutors.add(m.to);
+            if (m.to === currentUser) interlocutors.add(m.from);
+        });
+        const dialogs = Array.from(interlocutors).map(user => {
+            const msgs = getMessagesBetween(currentUser, user);
+            const last = msgs[msgs.length-1];
+            const unread = messages.filter(m => m.from === user && m.to === currentUser && !m.read).length;
+            return { user, last, unread };
+        });
+        dialogs.sort((a,b) => new Date(b.last.timestamp) - new Date(a.last.timestamp));
+
+        let html = '<h2>Сообщения</h2>';
+        if (dialogs.length === 0) {
+            html += '<p>Нет диалогов.</p>';
+        } else {
+            dialogs.forEach(d => {
+                const otherUser = users[d.user];
+                const avatar = otherUser?.avatar ? `<img src="${otherUser.avatar}" class="avatar-small" style="margin-right: 8px;">` : '<div class="avatar-small" style="margin-right: 8px;"></div>';
+                const lastText = d.last.text.length > 30 ? d.last.text.slice(0,30)+'…' : d.last.text;
+                html += `
+                    <div class="dialog-item" onclick="openChat('${d.user}')">
+                        <div style="display: flex; align-items: center; justify-content: space-between;">
+                            <div style="display: flex; align-items: center;">
+                                ${avatar}
+                                <span><strong>${d.user}</strong> ${d.unread ? '<span class="unread-badge">'+d.unread+'</span>' : ''}</span>
+                            </div>
+                            <span class="timestamp">${new Date(d.last.timestamp).toLocaleTimeString()}</span>
+                        </div>
+                        <div style="margin-left: 38px;">${lastText}</div>
+                    </div>
+                `;
+            });
+        }
+        container.innerHTML = html;
+    }
+
+    window.openChat = function(otherUser) {
+        markMessagesAsRead(otherUser, currentUser);
+        renderChat(otherUser);
+    };
+
+    function renderChat(otherUser) {
+        const container = document.getElementById('content');
+        const msgs = getMessagesBetween(currentUser, otherUser);
+        const other = users[otherUser];
+        const otherAvatar = other?.avatar ? `<img src="${other.avatar}" class="avatar-small">` : '<div class="avatar-small"></div>';
+
+        let html = `<h2>Чат с ${otherUser}</h2>`;
+        html += '<div style="max-height: 400px; overflow-y: auto; margin-bottom: 20px;" id="chatMessages">';
+
+        msgs.forEach(m => {
+            const isMine = m.from === currentUser;
+            const avatar = isMine ? (users[currentUser]?.avatar ? `<img src="${users[currentUser].avatar}" class="avatar-small">` : '<div class="avatar-small"></div>') : otherAvatar;
+            html += `
+                <div class="message-row ${isMine ? 'outgoing' : ''}">
+                    ${!isMine ? avatar : ''}
+                    <div class="message-bubble">
+                        ${m.text}
+                        <div class="timestamp">${new Date(m.timestamp).toLocaleTimeString()}</div>
+                    </div>
+                    ${isMine ? avatar : ''}
+                </div>
+            `;
+        });
+        html += '</div>';
+
+        html += `
+            <div class="input-group">
+                <input type="text" id="chatInput" placeholder="Введите сообщение... (можно смайлики)">
+                <button class="btn" onclick="sendMessage('${otherUser}')">Отправить</button>
+            </div>
+            <div style="margin-top:10px;">
+                <button class="btn btn-secondary btn-sm" onclick="showTab('messages')">Назад</button>
+            </div>
+        `;
+
+        container.innerHTML = html;
+
+        setTimeout(() => {
+            const chatDiv = document.getElementById('chatMessages');
+            if (chatDiv) chatDiv.scrollTop = chatDiv.scrollHeight;
+        }, 50);
+    }
+
+    window.sendMessage = function(toUser) {
+        const input = document.getElementById('chatInput');
+        const text = input.value.trim();
+        if (!text) return;
+        addMessage(currentUser, toUser, text);
+        input.value = '';
+        openChat(toUser);
+    };
+
+    // ПРОФИЛЬ (свои посты + кнопка удаления аккаунта)
+    function renderProfile(container) {
+        const user = users[currentUser];
+        const unread = getUnreadCount();
+        const avatarHtml = user.avatar ? `<img src="${user.avatar}" style="width: 80px; height: 80px; border-radius: 50%; object-fit: cover;">` : '<div style="width: 80px; height: 80px; border-radius: 50%; background: #555;"></div>';
+        
+        let html = `
+            <h2>Профиль</h2>
+            <div class="profile-info">
+                <div style="display: flex; align-items: center; gap: 20px;">
+                    ${avatarHtml}
+                    <div>
+                        <p><strong>Имя:</strong> ${user.username}</p>
+                        <p><strong>Телефон:</strong> ${user.phone || 'не указан'}</p>
+                        <p><strong>Друзей:</strong> ${user.friends.length}</p>
+                        <p><strong>Постов:</strong> ${user.posts.length}</p>
+                        <p><strong>Непрочитанных сообщений:</strong> ${unread}</p>
+                    </div>
+                </div>
+                <button class="btn" onclick="editProfile()" style="margin-top: 15px;">Редактировать профиль</button>
+                <button class="btn btn-danger" onclick="deleteAccount()" style="margin-top: 10px;">Удалить аккаунт</button>
+            </div>
+        `;
+
+        if (user.posts.length > 0) {
+            html += '<h2 style="margin-top: 30px;">Мои посты</h2>';
+            const myPosts = user.posts.map(id => posts[id]).sort((a,b) => new Date(b.timestamp) - new Date(a.timestamp));
+            myPosts.forEach(post => {
+                html += renderPost(post);
+            });
+        } else {
+            html += '<p style="margin-top: 20px;">У вас пока нет постов.</p>';
+        }
+
+        container.innerHTML = html;
+    }
+
+    // ================== ЗАПУСК ==================
+    // Если есть сохранённые пользователи, показываем приветствие, иначе - формы
+    if (Object.keys(users).length > 0) {
+        // Для удобства выберем первого пользователя
+        currentUser = Object.keys(users)[0];
+        afterLogin();
+    } else {
+        // Показываем приветствие
+        document.getElementById('welcomeMessage').style.display = 'block';
+    }
+</script>
+</body>
+</html>
